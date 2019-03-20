@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1553085133580.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1422814343",
+    "id" : "D4756BBE",
+    "lastKnownWriteTime" : 1553095766,
+    "last_content_update" : 1553095766522,
+    "path" : "~/Documents/OSAR/Projetos/dia_mundial_agua/perdas_analise.R",
+    "project_path" : "perdas_analise.R",
+    "properties" : {
+        "cursorPosition" : "74,0",
+        "scrollLine" : "52",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
