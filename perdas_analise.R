@@ -4,11 +4,20 @@
 #------------------------------------------#
 
 # importar pacotes
-library(readxl); library(png)
-library(grid)
+library(readxl); library(png); library(grid); library(ggplot2)
+library(readxl); library(ggplot2); library(png); library(stringr); library(viridis); library(maps); library(raster); library(ggrepel);  library(sp); library(maps); library(maptools); library(xlsx)
+library(dplyr); library(stringi)
+if (!require(gpclib)) install.packages("gpclib", type="source")
+library(gpclib)
+library(rgdal)
+library(maptools)
+gpclibPermit()
 
 # importar dados
 snis_data <- read_excel("dados/snis_data.xls")
+code_muni <- read.csv("dados/code_muni1e2.csv")
+shape_pe <- shapefile("pe_municipios/26MUE250GC_SIR.shp")
+shape_pe <- shapefile(file.choose())
 
 # importar objetos e metodos de uso geral
 source("codigos/metodos_propriedades_gerais.R")
@@ -17,9 +26,13 @@ source("codigos/metodos_propriedades_gerais.R")
 osar <- readPNG("docs_imagens/osar_fundo-transparente.png")
 osar <- rasterGrob(osar, interpolate=TRUE)
 
-qplot(1:10, 1:10, geom="blank") +
-  annotation_custom(osar, xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf) +
-  geom_point()
+#---------------------- select
+snis_data17 <- snis_data[snis_data$`Ano de Referência` == 2017,]
+snis_data17 = snis_data17[complete.cases(snis_data17$`IN049 - Índice de perdas na distribuição`),]
+
+# merge code_muni com snis_data17
+colnames(snis_data17)[1] <- "code_muni"
+snis_data17 <- merge(snis_data17, code_muni[,c(2,3,8)], by="code_muni")
 
 #-------------------------------------------------#
 # pernambuco em comparacao com os demais estados
@@ -37,17 +50,57 @@ qplot(1:10, 1:10, geom="blank") +
 
 # mapa perdas no sistema por municipio em PE media 10 anos
 
+#---------------------------------------------------------------#
 # mapa perdas no sistema por municipio em PE ano mais recente
+
+# mergir bases
+colnames(shape_pe@data)[2] <- "code_muni2"
+shp_data <- merge(shape_pe, snis_data17, by = "code_muni2")
+
+#=== plotar paises ====#
+
+# ordenar
+shp_data <- shp_data[order(shp_data$`IN049 - Índice de perdas na distribuição`),]
+
+# tranformar shapefile em polygonsdataframe
+data_fortity = fortify(shp_data, region = "NM_MUNICIP")
+
+# extrair centroides dos poligonos
+centroids.df = as.data.frame(coordinates(shp_data))
+names(centroids.df) = c("Longitude", "Latitude")  #more sensible column localidades
+
+# base para plotagem
+localidade = shp_data@data$NM_MUNICIP
+Freq = shp_data@data$`IN049 - Índice de perdas na distribuição`
+map_dataframe = data.frame(localidade, Freq, centroids.df, nomes_centroides = "")
+map_dataframe$nomes_centroides = as.character(map_dataframe$nomes_centroides)
+map_dataframe$localidade = as.character(map_dataframe$localidade)
+map_dataframe$nomes_centroides[174:179] = map_dataframe$localidade[174:179]
+
+#---- mapa ----#
+library(ggrepel)
+library(viridis)
+ggplot(data = map_dataframe, aes(map_id = localidade)) + 
+  geom_map(aes(fill = shp_data$`IN049 - Índice de perdas na distribuição`), size = 0.2, colour = grey(0.85),  map = data_fortity) +
+  expand_limits(x = data_fortity$long, y = data_fortity$lat) +
+  scale_fill_viridis(name = "Perdas de Água no Sistema\n de Abastecimento em PE (%)", option= "D")+
+  #scale_fill_gradient(name = "Número de Projetos", low="lightgreen", high= "darkblue")+
+  geom_label_repel(aes(label = nomes_centroides, x = Longitude, y = Latitude), size = 3, color = "black") +
+  labs(title = "")+
+  coord_fixed(1) +
+  theme_minimal()%+replace% 
+  theme(legend.direction = "horizontal",
+        legend.position=c(0.5, 0.6),
+        axis.line=element_blank(),axis.text.x=element_blank(),
+        axis.text.y=element_blank(),axis.ticks=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank()
+  )+annotation_custom(osar, ymin=-10, ymax = -8, xmin = -33.5, xmax = -32)
+ggsave("mapa_PE.png", path = "resultados",width = 14, height = 6, units = "in" )
+
 
 #------------------------------------------------------------
 # grafico de barra 10 cidades maiores perdas
-
-snis_data17 <- snis_data[snis_data$`Ano de Referência` == 2017,]
-snis_data17 = snis_data17[complete.cases(snis_data17$`IN049 - Índice de perdas na distribuição`),]
-
-data =snis_data17
-varId = 11
-legendaVar = 'test'
 
 dev02 <- function(data, varID , legendaVar){
   
@@ -72,6 +125,18 @@ dev02 <- function(data, varID , legendaVar){
 }
 
 dev02(snis_data17, 11, 'Perdas de Água no Abastecimento (%)')
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

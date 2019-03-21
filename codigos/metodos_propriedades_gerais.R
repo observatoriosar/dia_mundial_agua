@@ -11,7 +11,6 @@ cleanStr <- function(string){
   return(string)
 }
 
-
 ### tema ggplot
 tema_massa <- function(base_size = 12, base_family = "") {
   theme_minimal(base_size = base_size, base_family = base_family) %+replace% 
@@ -20,7 +19,7 @@ tema_massa <- function(base_size = 12, base_family = "") {
           axis.text.y = element_text(colour="black",size=10,angle=0,hjust=1,vjust=0,face="plain"), 
           axis.title.x = element_text(colour="black",size=10,angle=0,hjust=.5,vjust=0,face="plain"),
           axis.title.y = element_text(colour="black",size=11,angle=90,hjust=.5,vjust=0.5,face="plain"),
-          title = element_text(colour="black",size=9,angle=0,hjust=.5,vjust=.5,face="plain"),
+          title = element_text(colour="black",size=14,angle=0,hjust=.5,vjust=.5,face="plain"),
           panel.grid.major = element_line(colour = grey(0.85)), 
           panel.grid.minor = element_line(colour = grey(1)),
           legend.key.size = unit(6, "mm"),
