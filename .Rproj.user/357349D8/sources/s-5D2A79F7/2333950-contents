@@ -1,5 +1,15 @@
+#-------------------------------------------#
+# OBSERVATORIO DE SANEAMENTO E MEIO
+# AMBIENTE DO RECIFE (OSAR)
+#-------------------------------------------#
+# Publicacao Dia Mundia da Agua
+#-------------------------------------------#
+# Autor do Script: Claudio A. Monteiro
+#------------------------------------------#
 
-### limpar string
+#=========================#
+# limpar string
+
 cleanStr <- function(string){
   library(stringi); library(stringr); library(dplyr)
   string = str_replace_all(string, ' ', '_')
@@ -11,7 +21,9 @@ cleanStr <- function(string){
   return(string)
 }
 
-### tema ggplot
+#========================#
+# tema ggplot
+
 tema_massa <- function(base_size = 12, base_family = "") {
   theme_minimal(base_size = base_size, base_family = base_family) %+replace% 
     theme(axis.ticks = element_line(size = 1, colour = "grey70" ),
@@ -29,7 +41,9 @@ tema_massa <- function(base_size = 12, base_family = "") {
           plot.background = element_blank())
 }
 
-### funcao para grafico ordenado
+#=================================#
+# gerar grafico ordenado
+
 orderPlot = function(data, varID, legendaVar){
   
   data$Município = factor(data$Município, levels = unique(data$Município[order(data[[varID]])]), ordered=TRUE)
